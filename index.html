@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gait Maturation Summary</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Gait Maturation: Summary Stats</h1>
+
+    <div class="filters">
+      <div>
+        <label for="gender">Gender:</label>
+        <select id="gender">
+          <option value="All">All</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+        </select>
+      </div>
+      <div>
+        <label for="group">Group:</label>
+        <select id="group">
+          <option value="All">All</option>
+          <option value="Young">Young</option>
+          <option value="Old">Old</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="speedChart"></canvas>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <h3>Selected Age</h3>
+        <h2 id="ageStat">-</h2>
+      </div>
+      <div class="stat-card">
+        <h3>Speed (m/s)</h3>
+        <h2 id="speedStat">-</h2>
+      </div>
+      <div class="stat-card">
+        <h3>Leg Length (in)</h3>
+        <h2 id="legLengthStat">-</h2>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let chart;
+    let data;
+
+    async function loadData() {
+      const response = await fetch("table.csv");
+      const text = await response.text();
+      const rows = text.trim().split("\n").slice(1);
+
+      data = rows.map(row => {
+        const [id, age, gender, height, weight, legLength, speed, group] = row.split(",");
+        return {
+          id: +id,
+          age: +age,
+          gender,
+          height: +height,
+          weight: +weight,
+          legLength: +legLength,
+          speed: +speed,
+          group
+        };
+      });
+    }
+
+    function updateChart() {
+      const genderFilter = document.getElementById("gender").value;
+      const groupFilter = document.getElementById("group").value;
+
+      const filtered = data.filter(d =>
+        (genderFilter === "All" || d.gender === genderFilter) &&
+        (groupFilter === "All" || d.group === groupFilter)
+      );
+
+      const ageMap = {};
+      filtered.forEach(d => {
+        if (!ageMap[d.age]) ageMap[d.age] = [];
+        ageMap[d.age].push(d);
+      });
+
+      const labels = Object.keys(ageMap).map(a => +a).sort((a, b) => a - b);
+      const speeds = labels.map(a => {
+        const entries = ageMap[a];
+        return entries.reduce((sum, e) => sum + e.speed, 0) / entries.length;
+      });
+
+      if (chart) chart.destroy();
+
+      chart = new Chart(document.getElementById("speedChart"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Avg Speed (m/s)",
+            data: speeds,
+            borderColor: "#007bff",
+            fill: false,
+            tension: 0.2
+          }]
+        },
+        options: {
+          onClick: (e, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              const selectedAge = labels[index];
+              const stats = ageMap[selectedAge];
+              const avgLeg = stats.reduce((sum, e) => sum + e.legLength, 0) / stats.length;
+              const avgSpeed = speeds[index];
+              document.getElementById("ageStat").textContent = selectedAge + " months";
+              document.getElementById("speedStat").textContent = avgSpeed.toFixed(2);
+              document.getElementById("legLengthStat").textContent = avgLeg.toFixed(1);
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Age (months)"
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: "Speed (m/s)"
+              }
+            }
+          }
+        }
+      });
+    }
+
+    document.getElementById("gender").addEventListener("change", updateChart);
+    document.getElementById("group").addEventListener("change", updateChart);
+
+    loadData().then(updateChart);
+  </script>
+</body>
+</html>
