@@ -24,20 +24,20 @@ async function loadData() {
     });
 
     // Load stride data for selected subjects
-    const youngSubject = data.find(d => d.group === "Young" && d.age === 54); // Subject 9
-    //const middleSubject = data.find(d => d.group === "Middle" && d.age === 85); // Subject 22
+    //const youngSubject = data.find(d => d.group === "Young" && d.age === 54); // Subject 9
+    const middleSubject = data.find(d => d.group === "Middle" && d.age === 85); // Subject 22
     const oldSubject = data.find(d => d.group === "Old" && d.age === 148); // Subject 46
 
     // Load stride data for each subject
     await Promise.all([
-        loadStrideData(youngSubject.id, youngSubject.age, "young"),
-        //loadStrideData(middleSubject.id, middleSubject.age, "middle"),
+        //loadStrideData(youngSubject.id, youngSubject.age, "young"),
+        loadStrideData(middleSubject.id, middleSubject.age, "middle"),
         loadStrideData(oldSubject.id, oldSubject.age, "old")
     ]);
 
     // Update walker info
-    updateWalkerInfo("young", youngSubject);
-    //updateWalkerInfo("middle", middleSubject);
+    //updateWalkerInfo("young", youngSubject);
+    updateWalkerInfo("middle", middleSubject);
     updateWalkerInfo("old", oldSubject);
 
     // Set up restart button
@@ -93,7 +93,7 @@ function toggleWalking() {
     const button = document.getElementById("restartButton");
     if (isPlaying) {
         button.textContent = "Pause ⏸️";
-        ['young', 'old'].forEach(type => {
+        ['middle', 'old'].forEach(type => {
             // Get current selected subject for this group
             const select = document.getElementById(type + 'Select');
             const selectedId = parseInt(select.value);
@@ -101,8 +101,8 @@ function toggleWalking() {
 
             // Calculate maxSpeed based on current dropdowns
             const maxSpeed = Math.max(
-                data.find(d => d.id === parseInt(document.getElementById('youngSelect').value)).speed,
-                //data.find(d => d.id === parseInt(document.getElementById('middleSelect').value)).speed,
+                //data.find(d => d.id === parseInt(document.getElementById('youngSelect').value)).speed,
+                data.find(d => d.id === parseInt(document.getElementById('middleSelect').value)).speed,
                 data.find(d => d.id === parseInt(document.getElementById('oldSelect').value)).speed
             );
 
@@ -141,17 +141,17 @@ function startWalking(resume = false) {
     }
 
     // Get the data points again
-    const youngData = data.find(d => d.group === "Young" && d.age === 54);
-    //const middleData = data.find(d => d.group === "Middle" && d.age === 85);
+    //const youngData = data.find(d => d.group === "Young" && d.age === 54);
+    const middleData = data.find(d => d.group === "Middle" && d.age === 85);
     const oldData = data.find(d => d.group === "Old" && d.age === 148);
 
     // Calculate base animation parameters
     const baseDuration = 20; // seconds for the slowest walker
-    const maxSpeed = Math.max(youngData.speed, oldData.speed);
+    const maxSpeed = Math.max(middleData.speed, oldData.speed);
     
     // Apply animations with stride-based timing
-    animateWalker('young', youngData, baseDuration, maxSpeed, resume);
-    //animateWalker('middle', middleData, baseDuration, maxSpeed, resume);
+    //animateWalker('young', youngData, baseDuration, maxSpeed, resume);
+    animateWalker('middle', middleData, baseDuration, maxSpeed, resume);
     animateWalker('old', oldData, baseDuration, maxSpeed, resume);
 }
 
@@ -159,8 +159,8 @@ function calculateTotalDuration(type, baseDuration, maxSpeed) {
     const data = strideData[type];
     if (!data) return baseDuration;
 
-    const subjectData = type === 'young' ? data.find(d => d.group === "Young" && d.age === 54) :
-                       //type === 'middle' ? data.find(d => d.group === "Middle" && d.age === 85) :
+    const subjectData = //type === 'young' ? data.find(d => d.group === "Young" && d.age === 54) :
+                       type === 'middle' ? data.find(d => d.group === "Middle" && d.age === 85) :
                        data.find(d => d.group === "Old" && d.age === 148);
 
     const speedRatio = maxSpeed / subjectData.speed;
@@ -299,8 +299,8 @@ function getWalkerSVG(type) {
 // Populate dropdowns and set up listeners
 function populateDropdowns() {
     const groups = {
-        young: data.filter(d => d.group === 'Young'),
-        //middle: data.filter(d => d.group === 'Middle'),
+        //young: data.filter(d => d.group === 'Young'),
+        middle: data.filter(d => d.group === 'Middle'),
         old: data.filter(d => d.group === 'Old')
     };
     // Populate each dropdown
@@ -308,8 +308,8 @@ function populateDropdowns() {
         const select = document.getElementById(type + 'Select');
         select.innerHTML = arr.map(d => `<option value="${d.id}">${d.id}: Age ${d.age} (${d.gender})</option>`).join('');
         // Set default selection
-        if (type === 'young') select.value = '9';
-        //if (type === 'middle') select.value = '22';
+        //if (type === 'young') select.value = '9';
+        if (type === 'middle') select.value = '22';
         if (type === 'old') select.value = '46';
         select.onchange = () => {
             // Stop animation and reset everything
@@ -322,7 +322,7 @@ function populateDropdowns() {
                 }
             });
             // For all groups, update the walker card and reset the SVG/position
-            ['young', 'middle', 'old'].forEach(groupType => {
+            ['middle', 'old'].forEach(groupType => {
                 const groupSelect = document.getElementById(groupType + 'Select');
                 const groupArr = groups[groupType];
                 const selected = groupArr.find(d => d.id == groupSelect.value);
