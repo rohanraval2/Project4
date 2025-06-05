@@ -1,0 +1,71 @@
+<!-- comparison-3walker.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Gait Speed Comparison - Fixed 3 Walkers</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <h1>Gait Speed Comparison: Fixed Subjects</h1>
+
+    <div class="comparison-container" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+        <!-- Young Walker -->
+        <div class="walker-section" style="flex: 1; min-width: 300px;">
+            <h2>Young Walker: Subject 9 (Age 54)</h2>
+            <div class="walker-container young" style="width: 300px; height: 300px; margin: 0 auto; background-color: #f5f5f5;">
+                <svg class="kid-svg young"></svg>
+            </div>
+            <table style="margin: 10px auto;">
+                <tr><td>Age:</td><td><span id="youngAge">-</span></td></tr>
+                <tr><td>Speed:</td><td><span id="youngSpeed">-</span></td></tr>
+                <tr><td>Leg Length:</td><td><span id="youngLegLength">-</span></td></tr>
+            </table>
+            <div class="walker-plot" style="width: 300px; margin: 10px auto;">
+                <canvas id="youngChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Middle Walker -->
+        <div class="walker-section" style="flex: 1; min-width: 300px;">
+            <h2>Middle Walker: Subject 15 (Age 79)</h2>
+            <div class="walker-container middle" style="width: 300px; height: 300px; margin: 0 auto; background-color: #f5f5f5;">
+                <svg class="kid-svg middle"></svg>
+            </div>
+            <table style="margin: 10px auto;">
+                <tr><td>Age:</td><td><span id="middleAge">-</span></td></tr>
+                <tr><td>Speed:</td><td><span id="middleSpeed">-</span></td></tr>
+                <tr><td>Leg Length:</td><td><span id="middleLegLength">-</span></td></tr>
+            </table>
+            <div class="walker-plot" style="width: 300px; margin: 10px auto;">
+                <canvas id="middleChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Old Walker -->
+        <div class="walker-section" style="flex: 1; min-width: 300px;">
+            <h2>Old Walker: Subject 50 (Age 163)</h2>
+            <div class="walker-container old" style="width: 300px; height: 300px; margin: 0 auto; background-color: #f5f5f5;">
+                <svg class="kid-svg old"></svg>
+            </div>
+            <table style="margin: 10px auto;">
+                <tr><td>Age:</td><td><span id="oldAge">-</span></td></tr>
+                <tr><td>Speed:</td><td><span id="oldSpeed">-</span></td></tr>
+                <tr><td>Leg Length:</td><td><span id="oldLegLength">-</span></td></tr>
+            </table>
+            <div class="walker-plot" style="width: 300px; margin: 10px auto;">
+                <canvas id="oldChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Button -->
+    <div style="text-align: center; margin-top: 20px;">
+        <button id="startButton">Start Walking</button>
+    </div>
+
+    <!-- JS -->
+    <script src="comparison-3walker.js"></script>
+</body>
+</html>

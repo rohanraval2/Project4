@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stride Walker Visualization: Subject 15 (Age 79) vs Subject 50 (Age 163)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Base styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* Container for side-by-side layout */
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row;
+            gap: 4rem;
+            justify-content: center;
+        }
+
+        .walker-section {
+            flex: 1;
+            min-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .walker-container {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .ground {
+            width: 400px;
+            height: 400px;
+            background: #e2e8f0;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kid-svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform: scale(0.8);
+            transition: transform 0.1s ease-in-out;
+        }
+
+        /* Stats display */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-box {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Plot container */
+        .plot-container {
+            width: 100%;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        #restartButton {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #restartButton:hover {
+            background: #1d4ed8;
+        }
+
+        #restartButton:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Subject display */
+        .subject-display {
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Responsive design */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            .walker-section {
+                width: 100%;
+                min-width: unset;
+            }
+            .ground {
+                width: 100%;
+                height: 0;
+                padding-bottom: 100%;
+                position: relative;
+            }
+            .kid-svg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        /* Page title */
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #1e293b;
+            font-size: 1.75rem;
+        }
+
+        /* Walker section titles */
+        h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #334155;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stride Walker Visualization: Subject 15 (Age 79) vs Subject 50 (Age 163)</h1>
+
+    <div class="container">
+        <!-- Older Subject (50) -->
+        <div class="walker-section">
+            <h2>Older Subject</h2>
+            <div class="subject-display">Subject 50 (Age 163)</div>
+            <div class="walker-container">
+                <div class="ground">
+                    <svg class="kid-svg older" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet"></svg>
+                </div>
+                <div id="olderInfo" class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Age</div>
+                        <div class="stat-value">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Speed (m/s)</div>
+                        <div class="stat-value">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Leg Length (cm)</div>
+                        <div class="stat-value">-</div>
+                    </div>
+                </div>
+                <div class="plot-container">
+                    <canvas id="strideChartOlder"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Younger Subject (15) -->
+        <div class="walker-section">
+            <h2>Younger Subject</h2>
+            <div class="subject-display">Subject 15 (Age 79)</div>
+            <div class="walker-container">
+                <div class="ground">
+                    <svg class="kid-svg younger" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet"></svg>
+                </div>
+                <div id="youngerInfo" class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Age</div>
+                        <div class="stat-value">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Speed (m/s)</div>
+                        <div class="stat-value">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Leg Length (cm)</div>
+                        <div class="stat-value">-</div>
+                    </div>
+                </div>
+                <div class="plot-container">
+                    <canvas id="strideChartYounger"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="restartButton">Play ▶️</button>
+    </div>
+
+    <script src="comparison-15-50.js"></script>
+</body>
+</html> 

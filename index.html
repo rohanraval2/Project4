@@ -1,83 +1,645 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gait Maturation Summary</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gait Analysis Visualization</title>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #ffffff;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav {
+            background: #2563eb;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        /* Main content sections */
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            color: #2563eb;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Home section */
+        .home-section {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(to bottom, #f8fafc, #ffffff);
+        }
+
+        .home-content {
+            max-width: 800px;
+        }
+
+        .home-title {
+            font-size: 3rem;
+            color: #2563eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .home-description {
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .cta-button:hover {
+            background: #1d4ed8;
+        }
+
+        /* Characters section */
+        .characters-section {
+            background: #ffffff;
+            padding: 6rem 2rem;
+        }
+
+        .characters-container {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 3rem;
+        }
+
+        .character-card {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+            transition: transform 0.3s ease;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .character-svg-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 1.5rem;
+            background: #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .character-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .character-name {
+            color: #2563eb;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .character-description {
+            color: #64748b;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Visualization sections */
+        .visualization-section {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Race Question section */
+        .race-question-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 8rem 2rem;
+            text-align: center;
+        }
+
+        .question-container {
+            max-width: 900px;
+            margin: 0 auto 4rem;
+        }
+
+        .question-title {
+            font-size: 3rem;
+            color: #2563eb;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .question-subtitle {
+            font-size: 1.3rem;
+            color: #64748b;
+            margin-bottom: 3rem;
+        }
+
+        .race-track {
+            background: #e2e8f0;
+            height: 250px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin: 3rem auto;
+            max-width: 900px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .race-track::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(
+                to right,
+                #fff 0px,
+                #fff 20px,
+                transparent 20px,
+                transparent 40px
+            );
+        }
+
+        .racer {
+            position: absolute;
+            bottom: 40px;
+            width: 80px;
+            height: 80px;
+            transition: left 0.1s linear;
+        }
+
+        .racer.older {
+            left: -80px;
+            bottom: 40px;
+            animation: raceOlder 4s linear infinite;
+        }
+
+        .racer.younger {
+            left: -80px;
+            bottom: 130px;
+            animation: raceYounger 6s linear infinite;
+        }
+
+        @keyframes raceOlder {
+            0% { left: -80px; }
+            100% { left: calc(100% + 80px); }
+        }
+
+        @keyframes raceYounger {
+            0% { left: -80px; }
+            100% { left: calc(100% + 80px); }
+        }
+
+        .race-label {
+            position: absolute;
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        .race-label.older {
+            left: 20px;
+            bottom: 20px;
+        }
+
+        .race-label.younger {
+            left: 20px;
+            bottom: 150px;
+        }
+
+        .race-track-container {
+            position: relative;
+            margin: 0 auto;
+            max-width: 900px;
+        }
+
+        .race-track-container::before,
+        .race-track-container::after {
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .race-track-container::before {
+            left: 10px;
+        }
+
+        .race-track-container::after {
+            right: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .home-title {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 2rem 1rem;
+            }
+
+            .characters-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 2rem;
+            }
+
+            .character-card {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .question-title {
+                font-size: 2.5rem;
+            }
+            
+            .question-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .race-track {
+                height: 200px;
+                margin: 2rem auto;
+            }
+
+            .racer {
+                width: 50px;
+                height: 50px;
+            }
+
+            .racer.older {
+                left: -50px;
+                bottom: 30px;
+                animation: raceOlder 4s linear infinite;
+            }
+
+            .racer.younger {
+                left: -50px;
+                bottom: 100px;
+                animation: raceYounger 6s linear infinite;
+            }
+
+            @keyframes raceOlder {
+                0% { left: -50px; }
+                100% { left: calc(100% + 50px); }
+            }
+
+            @keyframes raceYounger {
+                0% { left: -50px; }
+                100% { left: calc(100% + 50px); }
+            }
+
+            .race-label {
+                font-size: 0.8rem;
+            }
+
+            .race-label.older {
+                bottom: 15px;
+            }
+
+            .race-label.younger {
+                bottom: 110px;
+            }
+
+            .race-track-container::before,
+            .race-track-container::after {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>Gait Maturation: Summary Stats</h1>
-
-    <div class="filters">
-      <div>
-        <label for="gender">Gender:</label>
-        <select id="gender">
-          <option value="All">All</option>
-          <option value="M">Male</option>
-          <option value="F">Female</option>
-        </select>
-      </div>
-      <div>
-        <label for="group">Group:</label>
-        <select id="group">
-        <option value="All">All</option>
-        <option value="Young">Young</option>
-        <option value="Middle">Middle</option>
-        <option value="Old">Old</option>
-</select>
-      </div>
-    </div>
-
-    <div class="visual-container">
-      <div class="chart-container">
-        <canvas id="speedChart"></canvas>
-      </div>
-      <div class="animation-container">
-        <div class="ground">
-          <div class="walker" id="walker"></div>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <h1 class="nav-title">Gait Analysis</h1>
+            <div class="nav-links">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#comparison" class="nav-link">Speed Comparison</a>
+                <a href="#stride" class="nav-link">Stride Analysis</a>
+            </div>
         </div>
-      </div>
-    </div>
+    </nav>
 
-    
-
-    <div class="stats">
-      <div class="stat-card">
-        <h3>Selected Age</h3>
-        <h2 id="ageStat">-</h2>
-        <div class="slider-control">
-            <label for="ageSlider">Select Age:</label>
-            <input type="range" id="ageSlider" min="40" max="163" step="1" value="40">
-          </div>
-      </div>
-      <div class="stat-card">
-        <h3>Speed (m/s)</h3>
-        <h2 id="speedStat">-</h2>
-        <div class="slider-control">
-            <label for="speedSlider">Select Min Speed (m/s):</label>
-            <input type="range" id="speedSlider" min="0.8" max="1.5" step="0.01" value="0.8">
+    <!-- Home Section -->
+    <section id="home" class="section home-section">
+        <div class="home-content">
+            <h1 class="home-title">Gait Analysis Visualization</h1>
+            <p class="home-description">
+                Explore the fascinating world of human gait analysis through interactive visualizations. 
+                Compare walking speeds across different age groups and analyze stride patterns in detail.
+            </p>
+            <a href="#comparison" class="cta-button">Start Exploring</a>
         </div>
-      </div>
-      <div class="stat-card">
-        <h3>Leg Length (in)</h3>
-        <h2 id="legLengthStat">-</h2>
-        <div class="slider-control">
-            <label for="legSlider">Select Min Leg Length (in):</label>
-            <input type="range" id="legSlider" min="15" max="40" step="0.1" value="15">
+    </section>
+
+    <!-- Characters Section -->
+    <section id="characters" class="section characters-section">
+        <h2 class="section-title">Meet Our Walkers</h2>
+        <div class="characters-container">
+            <!-- Younger Brother -->
+            <div class="character-card">
+                <div class="character-svg-container">
+                    <svg class="character-svg" viewBox="0 0 120 120">
+                        <!-- Head -->
+                        <rect x="40" y="20" width="40" height="40" fill="#FFD700"/>
+                        <!-- Hair -->
+                        <rect x="45" y="10" width="6" height="15" fill="#8B4513" transform="rotate(-15 48 17)"/>
+                        <rect x="55" y="8" width="6" height="17" fill="#8B4513"/>
+                        <rect x="65" y="10" width="6" height="15" fill="#8B4513" transform="rotate(15 68 17)"/>
+                        <!-- Face -->
+                        <rect x="45" y="30" width="5" height="5" fill="#000"/> <!-- Left eye -->
+                        <rect x="70" y="30" width="5" height="5" fill="#000"/> <!-- Right eye -->
+                        <rect x="57" y="40" width="3" height="3" fill="#FF69B4"/> <!-- Nose -->
+                        <rect x="50" y="50" width="20" height="3" fill="#000"/> <!-- Mouth -->
+                        <!-- Body -->
+                        <rect x="45" y="60" width="30" height="35" fill="#FF6B6B"/>
+                        <!-- Arms -->
+                        <rect x="30" y="65" width="15" height="20" fill="#FFD700"/>
+                        <rect x="75" y="65" width="15" height="20" fill="#FFD700"/>
+                        <!-- Legs -->
+                        <rect x="50" y="95" width="8" height="20" fill="#4ECDC4"/>
+                        <rect x="62" y="95" width="8" height="20" fill="#4ECDC4"/>
+                        <!-- Shoes -->
+                        <rect x="45" y="115" width="18" height="5" fill="#000"/>
+                        <rect x="57" y="115" width="18" height="5" fill="#000"/>
+                    </svg>
+                </div>
+                <h3 class="character-name">Younger Brother</h3>
+                <p class="character-description">
+                    Meet our energetic younger walker! With his shorter stride and quicker pace, 
+                    he represents the dynamic movement patterns of younger individuals. 
+                    Watch how his walking style differs from his older brother.
+                </p>
+            </div>
+
+            <!-- Older Brother -->
+            <div class="character-card">
+                <div class="character-svg-container">
+                    <svg class="character-svg" viewBox="0 0 120 120">
+                        <!-- Head -->
+                        <rect x="40" y="20" width="40" height="40" fill="#FFD700"/>
+                        <!-- Hair -->
+                        <rect x="35" y="15" width="50" height="10" fill="#8B4513"/>
+                        <rect x="30" y="20" width="10" height="15" fill="#8B4513"/>
+                        <rect x="80" y="20" width="10" height="15" fill="#8B4513"/>
+                        <!-- Face -->
+                        <rect x="45" y="30" width="5" height="5" fill="#000"/> <!-- Left eye -->
+                        <rect x="70" y="30" width="5" height="5" fill="#000"/> <!-- Right eye -->
+                        <rect x="57" y="40" width="3" height="3" fill="#FF69B4"/> <!-- Nose -->
+                        <rect x="50" y="50" width="20" height="3" fill="#000"/> <!-- Mouth -->
+                        <!-- Body -->
+                        <rect x="45" y="60" width="30" height="35" fill="#FF6B6B"/>
+                        <!-- Arms -->
+                        <rect x="30" y="65" width="15" height="20" fill="#FFD700"/>
+                        <rect x="75" y="65" width="15" height="20" fill="#FFD700"/>
+                        <!-- Legs -->
+                        <rect x="50" y="95" width="8" height="20" fill="#4ECDC4"/>
+                        <rect x="62" y="95" width="8" height="20" fill="#4ECDC4"/>
+                        <!-- Shoes -->
+                        <rect x="45" y="115" width="18" height="5" fill="#000"/>
+                        <rect x="57" y="115" width="18" height="5" fill="#000"/>
+                    </svg>
+                </div>
+                <h3 class="character-name">Older Brother</h3>
+                <p class="character-description">
+                    Meet our experienced older walker! With his longer stride and measured pace, 
+                    he demonstrates the walking patterns of more mature individuals. 
+                    Notice how his movement style contrasts with his younger brother.
+                </p>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  
-  
- 
-  
+    <!-- Race Question Section -->
+    <section id="race-question" class="section race-question-section">
+        <div class="question-container">
+            <h2 class="question-title">Who Do You Think Walks Faster?</h2>
+            <p class="question-subtitle">
+                You might assume the older brother would walk faster, right? 
+                After all, he's bigger and has longer legs! But what if we told you 
+                that's not always the case? Let's watch them race and find out...
+            </p>
+        </div>
+        
+        <div class="race-track-container">
+            <div class="race-track">
+                <!-- Older Brother Racer -->
+                <div class="racer older">
+                    <svg viewBox="0 0 120 120" style="transform: scale(0.5);">
+                        <!-- Head -->
+                        <rect x="40" y="20" width="40" height="40" fill="#FFD700"/>
+                        <!-- Hair -->
+                        <rect x="35" y="15" width="50" height="10" fill="#8B4513"/>
+                        <rect x="30" y="20" width="10" height="15" fill="#8B4513"/>
+                        <rect x="80" y="20" width="10" height="15" fill="#8B4513"/>
+                        <!-- Face -->
+                        <rect x="45" y="30" width="5" height="5" fill="#000"/>
+                        <rect x="70" y="30" width="5" height="5" fill="#000"/>
+                        <rect x="57" y="40" width="3" height="3" fill="#FF69B4"/>
+                        <rect x="50" y="50" width="20" height="3" fill="#000"/>
+                        <!-- Body -->
+                        <rect x="45" y="60" width="30" height="35" fill="#FF6B6B"/>
+                        <!-- Arms -->
+                        <rect x="30" y="65" width="15" height="20" fill="#FFD700"/>
+                        <rect x="75" y="65" width="15" height="20" fill="#FFD700"/>
+                        <!-- Legs -->
+                        <rect x="50" y="95" width="8" height="20" fill="#4ECDC4"/>
+                        <rect x="62" y="95" width="8" height="20" fill="#4ECDC4"/>
+                        <!-- Shoes -->
+                        <rect x="45" y="115" width="18" height="5" fill="#000"/>
+                        <rect x="57" y="115" width="18" height="5" fill="#000"/>
+                    </svg>
+                </div>
+                <div class="race-label older">Older Brother</div>
 
+                <!-- Younger Brother Racer -->
+                <div class="racer younger">
+                    <svg viewBox="0 0 120 120" style="transform: scale(0.5);">
+                        <!-- Head -->
+                        <rect x="40" y="20" width="40" height="40" fill="#FFD700"/>
+                        <!-- Hair -->
+                        <rect x="45" y="10" width="6" height="15" fill="#8B4513" transform="rotate(-15 48 17)"/>
+                        <rect x="55" y="8" width="6" height="17" fill="#8B4513"/>
+                        <rect x="65" y="10" width="6" height="15" fill="#8B4513" transform="rotate(15 68 17)"/>
+                        <!-- Face -->
+                        <rect x="45" y="30" width="5" height="5" fill="#000"/>
+                        <rect x="70" y="30" width="5" height="5" fill="#000"/>
+                        <rect x="57" y="40" width="3" height="3" fill="#FF69B4"/>
+                        <rect x="50" y="50" width="20" height="3" fill="#000"/>
+                        <!-- Body -->
+                        <rect x="45" y="60" width="30" height="35" fill="#FF6B6B"/>
+                        <!-- Arms -->
+                        <rect x="30" y="65" width="15" height="20" fill="#FFD700"/>
+                        <rect x="75" y="65" width="15" height="20" fill="#FFD700"/>
+                        <!-- Legs -->
+                        <rect x="50" y="95" width="8" height="20" fill="#4ECDC4"/>
+                        <rect x="62" y="95" width="8" height="20" fill="#4ECDC4"/>
+                        <!-- Shoes -->
+                        <rect x="45" y="115" width="18" height="5" fill="#000"/>
+                        <rect x="57" y="115" width="18" height="5" fill="#000"/>
+                    </svg>
+                </div>
+                <div class="race-label younger">Younger Brother</div>
+            </div>
+        </div>
+    </section>
 
-  <script src="script.js"></script>
+    <!-- Speed Comparison Section -->
+    <section id="comparison" class="section visualization-section">
+        <h2 class="section-title">Walking Speed Comparison</h2>
+        <div class="comparison-container">
+            <!-- Content from comparison.html will be loaded here -->
+            <iframe src="comparison.html" style="width: 100%; height: 800px; border: none;"></iframe>
+        </div>
+    </section>
+
+    <!-- Stride Analysis Section -->
+    <section id="stride" class="section visualization-section">
+        <h2 class="section-title">Stride Pattern Analysis</h2>
+        <div class="stride-container">
+            <!-- Content from stride-walker.html will be loaded here -->
+            <iframe src="stride-walker.html" style="width: 100%; height: 800px; border: none;"></iframe>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>Gait Analysis Visualization Tool</p>
+            <p>© 2024 All rights reserved</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Update active navigation link based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 60) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
-</html>
+</html> 

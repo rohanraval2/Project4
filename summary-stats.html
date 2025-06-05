@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gait Maturation Summary</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Gait Maturation: Summary Stats</h1>
+
+    <div class="filters">
+      <div>
+        <label for="gender">Gender:</label>
+        <select id="gender">
+          <option value="All">All</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+        </select>
+      </div>
+      <div>
+        <label for="group">Group:</label>
+        <select id="group">
+        <option value="All">All</option>
+        <option value="Young">Young</option>
+        <option value="Middle">Middle</option>
+        <option value="Old">Old</option>
+</select>
+      </div>
+    </div>
+
+    <div class="visual-container">
+      <div class="chart-container">
+        <canvas id="speedChart"></canvas>
+      </div>
+      <div class="animation-container">
+        <div class="ground">
+          <div class="walker" id="walker"></div>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <div class="stats">
+      <div class="stat-card">
+        <h3>Selected Age</h3>
+        <h2 id="ageStat">-</h2>
+        <div class="slider-control">
+            <label for="ageSlider">Select Age:</label>
+            <input type="range" id="ageSlider" min="40" max="163" step="1" value="40">
+          </div>
+      </div>
+      <div class="stat-card">
+        <h3>Speed (m/s)</h3>
+        <h2 id="speedStat">-</h2>
+        <div class="slider-control">
+            <label for="speedSlider">Select Min Speed (m/s):</label>
+            <input type="range" id="speedSlider" min="0.8" max="1.5" step="0.01" value="0.8">
+        </div>
+      </div>
+      <div class="stat-card">
+        <h3>Leg Length (in)</h3>
+        <h2 id="legLengthStat">-</h2>
+        <div class="slider-control">
+            <label for="legSlider">Select Min Leg Length (in):</label>
+            <input type="range" id="legSlider" min="15" max="40" step="0.1" value="15">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+ 
+  
+
+
+  <script src="script.js"></script>
+</body>
+</html>

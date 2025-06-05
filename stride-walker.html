@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stride Walker Visualization Comparison</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #ffffff;
+            color: #1e293b;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Updated container for side-by-side layout */
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row;
+            gap: 4rem;
+            justify-content: center;
+        }
+
+        .walker-section {
+            flex: 1;
+            min-width: 400px; /* Increased to accommodate square box */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2563eb;
+        }
+
+         /* Add a main control area below the title, spanning both columns */
+        .main-controls {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .walker-container {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .ground {
+            width: 400px; /* Fixed square size */
+            height: 400px; /* Fixed square size */
+            background: #e2e8f0;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            display: flex; /* Use flexbox for centering */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+        }
+
+        .kid-svg {
+            position: absolute;
+            width: 100%; /* Fill the container */
+            height: 100%; /* Fill the container */
+            transform: scale(0.8); /* Scale down slightly to fit */
+            transition: transform 0.1s ease-in-out;
+            /* Remove bottom positioning since we're using flex centering */
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+            width: 100%; /* Make controls fill its flex column */
+            box-sizing: border-box;
+        }
+
+        .controls select {
+             flex-grow: 1; /* Allow dropdown to take available space */
+        }
+
+        select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            color: #1e293b;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            width: 100%; /* Make stats fill its flex column */
+            box-sizing: border-box;
+             margin-bottom: 1rem; /* Add space between stats and chart */
+        }
+
+        .stats p {
+             margin: 0.5rem 0;
+             display: flex;
+             justify-content: space-between;
+        }
+
+        .stats p:last-child {
+             margin-bottom: 0;
+        }
+
+        .stat-label {
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            width: 100%;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-sizing: border-box;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            .walker-section {
+                width: 100%;
+                min-width: unset; /* Remove min-width constraint on mobile */
+            }
+            .ground {
+                width: 100%; /* Full width on mobile */
+                height: 0; /* Create square using padding-bottom */
+                padding-bottom: 100%; /* Makes it square */
+                position: relative;
+            }
+            .kid-svg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+        }
+    </style>
+     <!-- Chart.js CDN -->
+     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+     <!-- Include Chartjs Plugin Annotations if needed for highlighting, or handle manually -->
+     <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script> -->
+
+</head>
+<body>
+    <h1>Stride Walker Visualization Comparison</h1>
+
+    <div class="main-controls">
+         <button id="startButton">Start Walking</button>
+    </div>
+
+    <div class="container">
+        <!-- Older Subject Walker Section -->
+        <div class="walker-section">
+            <h2>Older Subject</h2>
+            <div class="walker-container">
+                <div class="ground">
+                    <svg class="kid-svg older" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet"></svg>
+                </div>
+            </div>
+            <div class="controls">
+                <select id="subjectSelectOlder"></select>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-label">Current Stride Interval:</span>
+                    <span id="currentIntervalOlder" class="stat-value">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Average Stride Interval:</span>
+                    <span id="avgIntervalOlder" class="stat-value">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Standard Deviation:</span>
+                    <span id="stdDevOlder" class="stat-value">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Steps Taken:</span>
+                    <span id="stepCountOlder" class="stat-value">0</span>
+                </div>
+            </div>
+             <!-- Stride Interval Chart for Older Subject -->
+            <div class="chart-container">
+                 <canvas id="strideChartOlder"></canvas>
+            </div>
+        </div>
+
+        <!-- Younger Subject Walker Section -->
+        <div class="walker-section">
+            <h2>Younger Subject</h2>
+             <div class="walker-container">
+                <div class="ground">
+                    <svg class="kid-svg younger" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet"></svg>
+                </div>
+            </div>
+             <div class="controls">
+                <select id="subjectSelectYounger"></select>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-label">Current Stride Interval:</span>
+                    <span id="currentIntervalYounger" class="stat-value">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Average Stride Interval:</span>
+                    <span id="avgIntervalYounger" class="stat-value">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Standard Deviation:</span>
+                    <span id="stdDevYounger" class="stat-value">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Steps Taken:</span>
+                    <span id="stepCountYounger" class="stat-value">0</span>
+                </div>
+            </div>
+            <!-- Stride Interval Chart for Younger Subject -->
+            <div class="chart-container">
+                <canvas id="strideChartYounger"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="stride-walker.js"></script>
+</body>
+</html> 

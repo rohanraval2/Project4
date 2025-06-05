@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The 8-Bit Kid's Gait Journey</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="story.css">
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="scroll-progress">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="progress-text">
+            <span class="current-chapter">Introduction</span>
+            <span class="progress-percent">0%</span>
+        </div>
+    </div>
+
+    <!-- Navigation Dots -->
+    <nav class="story-navigation">
+        <div class="nav-dot" data-section="intro" data-tooltip="Introduction"></div>
+        <div class="nav-dot" data-section="meet-kid" data-tooltip="Meet the Kid"></div>
+        <div class="nav-dot" data-section="gait-explorer" data-tooltip="Gait Explorer"></div>
+        <div class="nav-dot" data-section="summary" data-tooltip="Summary Stats"></div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="story-container">
+        <!-- Introduction Section -->
+        <section class="story-section intro" id="intro">
+            <div class="content">
+                <h1 class="title">The 8-Bit Kid's Gait Journey</h1>
+                <p class="subtitle">Exploring the fascinating world of children's walking patterns through data visualization</p>
+                <div class="scroll-indicator">
+                    <span>Scroll to begin the journey</span>
+                    <div class="arrow-down"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Meet the Kid Section -->
+        <section class="story-section meet-kid" id="meet-kid">
+            <div class="content">
+                <h2>Meet Our 8-Bit Kid</h2>
+                <div class="kid-profile">
+                    <div class="kid-animation">
+                        <svg class="kid-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Head -->
+                            <rect x="40" y="20" width="40" height="40" fill="#2563eb" rx="4"/>
+                            <!-- Hair -->
+                            <path d="M35 15 L85 15 L80 20 L40 20 Z" fill="#1e293b"/>
+                            <rect x="30" y="20" width="10" height="15" fill="#1e293b"/>
+                            <rect x="80" y="20" width="10" height="15" fill="#1e293b"/>
+                            <!-- Eyes -->
+                            <rect x="45" y="30" width="5" height="5" fill="#ffffff"/>
+                            <rect x="70" y="30" width="5" height="5" fill="#ffffff"/>
+                            <rect x="46" y="31" width="3" height="3" fill="#1e293b"/>
+                            <rect x="71" y="31" width="3" height="3" fill="#1e293b"/>
+                            <!-- Smile -->
+                            <path d="M50 45 Q60 55 70 45" stroke="#ffffff" stroke-width="2" fill="none"/>
+                            <!-- Body -->
+                            <rect x="45" y="60" width="30" height="35" fill="#3b82f6" rx="4"/>
+                            <!-- Arms -->
+                            <rect x="30" y="65" width="15" height="20" fill="#2563eb" rx="2"/>
+                            <rect x="75" y="65" width="15" height="20" fill="#2563eb" rx="2"/>
+                            <!-- Legs -->
+                            <rect x="50" y="95" width="8" height="20" fill="#60a5fa" rx="2"/>
+                            <rect x="62" y="95" width="8" height="20" fill="#60a5fa" rx="2"/>
+                            <!-- Feet -->
+                            <rect x="45" y="115" width="18" height="5" fill="#1e293b" rx="2"/>
+                            <rect x="57" y="115" width="18" height="5" fill="#1e293b" rx="2"/>
+                        </svg>
+                    </div>
+                    <div class="kid-info">
+                        <div class="info-item" data-info="age">
+                            <h3>Age</h3>
+                            <p class="info-value">8 years</p>
+                        </div>
+                        <div class="info-item" data-info="leg-length">
+                            <h3>Leg Length</h3>
+                            <p class="info-value">65 cm</p>
+                        </div>
+                        <div class="info-item" data-info="gender">
+                            <h3>Gender</h3>
+                            <p class="info-value">Male</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gait Explorer Section -->
+        <section class="story-section gait-explorer" id="gait-explorer">
+            <div class="content">
+                <h2>Gait Explorer</h2>
+                <div class="gait-visualization">
+                    <div class="gait-controls">
+                        <div class="gait-filters">
+                            <div class="filter-group">
+                                <label for="gait-metric">Metric</label>
+                                <select id="gait-metric">
+                                    <option value="speed">Walking Speed</option>
+                                    <option value="stride">Stride Length</option>
+                                    <option value="cadence">Cadence</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="time-range">Time Range</label>
+                                <select id="time-range">
+                                    <option value="day">Daily</option>
+                                    <option value="week">Weekly</option>
+                                    <option value="month">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gait-visual-container">
+                        <div class="gait-chart-container">
+                            <canvas id="gaitChart"></canvas>
+                        </div>
+                         <div class="gait-animation-container">
+                            <div class="gait-ground"></div>
+                             <!-- Removed the walking kid SVG from here as it will be managed by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Stats Section -->
+        <section class="story-section summary" id="summary">
+            <div class="content">
+                <h2>Summary Statistics</h2>
+                <div class="stats-container">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Average Speed</h3>
+                            <div class="stat-value">1.4 m/s</div>
+                            <div class="stat-chart">
+                                <canvas id="speedChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Stride Length</h3>
+                            <div class="stat-value">1.1 m</div>
+                            <div class="stat-chart">
+                                <canvas id="strideChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Cadence</h3>
+                            <div class="stat-value">120 steps/min</div>
+                            <div class="stat-chart">
+                                <canvas id="cadenceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="story.js"></script>
+</body>
+</html> 
