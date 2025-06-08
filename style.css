@@ -1,10 +1,14 @@
 /* Base styles */
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background: #ffffff;
     color: #1e293b;
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
     line-height: 1.6;
 }
 
@@ -303,22 +307,22 @@ body {
 
 /* Container styles */
 .container {
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
-    max-width: 1200px;
-    margin: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: auto;
 }
 
 .filters {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .filters label {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .chart-container {
@@ -329,38 +333,38 @@ body {
     padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
+  }
+  
 .stats {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: space-around;
-    text-align: center;
-    flex-wrap: wrap;
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  flex-wrap: wrap;
 }
 
 .stat-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    flex: 1 1 250px;
-    margin: 0.5rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  flex: 1 1 250px;
+  margin: 0.5rem;
 }
 
 .stat-card h2 {
-    margin: 0.5rem 0;
+  margin: 0.5rem 0;
 }
-
-.ground {
+  
+  .ground {
     width: 100%;
     height: 100px;
     background: linear-gradient(to right, #eee 10px, transparent 10px) repeat-x;
     background-size: 20px 100%;
     position: relative;
-}
-
-.walker {
+  }
+  
+  .walker {
     width: 40px;
     height: 80px;
     background: url('https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMHR4NHl1emN0Z2gza2w1ZjAxazRoYWJ6NWU5NjZmeGU5b2Z5eGF1aCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xUOrvW5lZpuaNJgpVu/giphy.gif') no-repeat center/contain;
@@ -368,23 +372,23 @@ body {
     top: 10px;
     left: 0;
     animation: walk-loop linear infinite;
-}
-
-@keyframes walk-loop {
+  }
+  
+  @keyframes walk-loop {
     from { left: -40px; }
     to { left: 100%; }
-}
-
-.visual-container {
+  }
+  
+  .visual-container {
     display: flex;
     justify-content: space-between;
     gap: 2rem;
     align-items: flex-start;
     margin-bottom: 2rem;
     flex-wrap: wrap;
-}
-
-.animation-container {
+  }
+  
+  .animation-container {
     width: 150px;
     height: 100px;
     overflow: hidden;
@@ -446,8 +450,8 @@ body {
         left: -50px;
         bottom: 30px;
         animation: raceOlder 4s linear infinite;
-    }
-
+  }
+  
     .racer.younger {
         left: -50px;
         bottom: 100px;
