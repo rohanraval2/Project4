@@ -10,7 +10,13 @@ let walkerStates = {
         stepCount: 0,
         elements: null, // To cache DOM elements
         subject: null, // To store current subject data
-        chart: null, // To hold the Chart.js instance
+        audio: { // New: Audio specific state for metronome
+            audioContext: null,
+            oscillator: null,
+            gainNode: null
+        },
+        circularPlotSvg: null, // New: To hold the circular plot SVG element
+        circularPlotPointsGroup: null, // New: To hold the group for stride points
     },
     younger: {
         strideData: [],
@@ -21,7 +27,13 @@ let walkerStates = {
         stepCount: 0,
         elements: null, // To cache DOM elements
         subject: null, // To store current subject data
-        chart: null, // To hold the Chart.js instance
+        audio: { // New: Audio specific state for metronome
+            audioContext: null,
+            oscillator: null,
+            gainNode: null
+        },
+        circularPlotSvg: null, // New: To hold the circular plot SVG element
+        circularPlotPointsGroup: null, // New: To hold the group for stride points
     }
 };
 
@@ -39,13 +51,11 @@ const walkerSvgOlder = document.querySelector('.kid-svg.older');
 const currentIntervalElOlder = document.getElementById('currentIntervalOlder');
 const avgIntervalElOlder = document.getElementById('avgIntervalOlder');
 const stepCountElOlder = document.getElementById('stepCountOlder');
-const strideChartCanvasOlder = document.getElementById('strideChartOlder');
 
 const walkerSvgYounger = document.querySelector('.kid-svg.younger');
 const currentIntervalElYounger = document.getElementById('currentIntervalYounger');
 const avgIntervalElYounger = document.getElementById('avgIntervalYounger');
 const stepCountElYounger = document.getElementById('stepCountYounger');
-const strideChartCanvasYounger = document.getElementById('strideChartYounger');
 
 // Helper to get elements for a specific walker
 function getWalkerElements(walkerId) {
@@ -66,12 +76,10 @@ function getWalkerElements(walkerId) {
             rightLegGroup: state.elements.rightLegGroup,
             leftCalf: state.elements.leftCalf,
             rightCalf: state.elements.rightCalf,
-            chartCanvas: state.elements.chartCanvas,
         };
     } else {
          // Fallback to querying if elements not cached yet (should only happen during init)
          const svg = document.querySelector(`.kid-svg.${walkerId}`);
-         const chartCanvas = document.getElementById(`strideChart${walkerId.charAt(0).toUpperCase() + walkerId.slice(1)}`);
          return {
             svg: svg,
             currentIntervalEl: document.getElementById(`currentInterval${walkerId.charAt(0).toUpperCase() + walkerId.slice(1)}`),
@@ -82,7 +90,6 @@ function getWalkerElements(walkerId) {
             rightLegGroup: svg ? svg.querySelector('.right-leg') : null,
             leftCalf: svg ? svg.querySelector('.left-leg .calf') : null,
             rightCalf: svg ? svg.querySelector('.right-leg .calf') : null,
-            chartCanvas: chartCanvas,
         };
     }
 }
@@ -124,7 +131,6 @@ function initWalkerSVG(walkerId) {
      svg.style.bottom = '0'; // Ensure it's at the bottom
 
     // Cache the DOM elements for this walker
-    const chartCanvas = document.getElementById(`strideChart${walkerId.charAt(0).toUpperCase() + walkerId.slice(1)}`);
     state.elements = {
         svg: svg,
         currentIntervalEl: document.getElementById(`currentInterval${walkerId.charAt(0).toUpperCase() + walkerId.slice(1)}`),
@@ -135,10 +141,197 @@ function initWalkerSVG(walkerId) {
         rightLegGroup: svg.querySelector('.right-leg'),
         leftCalf: svg.querySelector('.left-leg .calf'),
         rightCalf: svg.querySelector('.right-leg .calf'),
-        chartCanvas: chartCanvas,
     };
 
     debug(`Side-profile walker SVG initialized and elements cached for ${walkerId}`);
+}
+
+// New: Initialize metronome for a specific walker
+function initMetronome(walkerId) {
+    debug(`Initializing metronome for ${walkerId}`);
+    const walker = walkerStates[walkerId];
+
+    if (!walker) {
+        console.error(`Walker state not found for ${walkerId}, cannot initialize metronome.`);
+        return;
+    }
+
+    // Create AudioContext if it doesn't exist for this walker (should be once per app load)
+    if (!walker.audio.audioContext) {
+        walker.audio.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    // Create oscillator and gain node
+    walker.audio.oscillator = walker.audio.audioContext.createOscillator();
+    walker.audio.gainNode = walker.audio.audioContext.createGain();
+
+    // Set frequency (different for older/younger for differentiation)
+    walker.audio.oscillator.frequency.setValueAtTime(walkerId === 'older' ? 440 : 550, walker.audio.audioContext.currentTime); // A4 and C5
+    walker.audio.oscillator.type = 'sine'; // Simple sine wave
+
+    // Connect oscillator to gain node, then to destination (speakers)
+    walker.audio.oscillator.connect(walker.audio.gainNode);
+    walker.audio.gainNode.connect(walker.audio.audioContext.destination);
+
+    // Start the oscillator, but don't play sound yet (gain will control)
+    walker.audio.oscillator.start();
+
+    // Initially set gain to 0 so no sound is produced until playMetronomeClick is called
+    walker.audio.gainNode.gain.setValueAtTime(0, walker.audio.audioContext.currentTime);
+
+    debug(`Metronome initialized for ${walkerId}`);
+}
+
+// New: Play a single metronome click for a specific walker
+function playMetronomeClick(walkerId) {
+    const walker = walkerStates[walkerId];
+    if (!walker || !walker.audio.audioContext || !walker.audio.gainNode) {
+        console.warn(`Metronome not ready for ${walkerId}.`);
+        return;
+    }
+
+    const now = walker.audio.audioContext.currentTime;
+    const clickDuration = 0.1; // 100ms click, increased for prominence
+
+    // Set gain to 1 (full volume) immediately, then ramp down quickly to 0
+    walker.audio.gainNode.gain.cancelScheduledValues(now);
+    walker.audio.gainNode.gain.setValueAtTime(1, now); // Full volume instantly
+    walker.audio.gainNode.gain.exponentialRampToValueAtTime(0.0001, now + clickDuration); // Rapid decay
+
+    debug(`Metronome click played for ${walkerId}`);
+}
+
+// New: Draw the average stride interval reference circle on the circular plot
+function drawAverageCircularReference(walkerId) {
+    debug(`Drawing average reference circle for ${walkerId}`);
+    const walker = walkerStates[walkerId];
+    const { circularPlotSvg, circularPlotPointsGroup } = walker;
+
+    if (!circularPlotSvg || !circularPlotPointsGroup || !walker.strideData || walker.strideData.length === 0) {
+        console.warn(`Cannot draw average circle for ${walkerId}: missing elements or data.`);
+        return;
+    }
+
+    const centerX = 100;
+    const centerY = 100;
+    const maxRadius = 80;
+    const minInterval = walker.minInterval;
+    const maxInterval = walker.maxInterval;
+    const avgInterval = walker.avgInterval;
+
+    // Remove existing average circle if it exists, to redraw it
+    let existingAvgCircle = circularPlotSvg.querySelector('#avgCircle');
+    if (existingAvgCircle) {
+        existingAvgCircle.remove();
+    }
+
+    // Normalize average stride interval to fit within maxRadius
+    const intervalRange = maxInterval - minInterval;
+    let normalizedAvgRadius;
+    if (intervalRange === 0) {
+        normalizedAvgRadius = maxRadius / 2; // Default to half max radius if all intervals are same
+    } else {
+        normalizedAvgRadius = ((avgInterval - minInterval) / intervalRange) * maxRadius;
+    }
+
+    const avgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    avgCircle.setAttribute('id', 'avgCircle');
+    avgCircle.setAttribute('cx', centerX.toFixed(2));
+    avgCircle.setAttribute('cy', centerY.toFixed(2));
+    avgCircle.setAttribute('r', normalizedAvgRadius.toFixed(2));
+    avgCircle.setAttribute('fill', 'none');
+    avgCircle.setAttribute('stroke', '#64748b'); // Gray color
+    avgCircle.setAttribute('stroke-width', '1');
+    avgCircle.setAttribute('stroke-dasharray', '4 4'); // Dashed line
+    circularPlotSvg.insertBefore(avgCircle, circularPlotPointsGroup); // Insert before points group
+
+    debug(`Average reference circle drawn for ${walkerId} with radius ${normalizedAvgRadius.toFixed(2)}`);
+}
+
+// New: Create circular plot SVG for a specific walker
+function createCircularPlot(walkerId) {
+    debug(`Creating circular plot for ${walkerId}`);
+    const walker = walkerStates[walkerId];
+    const container = document.getElementById(`circularPlot${walkerId.charAt(0).toUpperCase() + walkerId.slice(1)}`);
+
+    if (!container || !walker) {
+        console.error(`Circular plot container or walker state not found for ${walkerId}!`);
+        return;
+    }
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Create SVG element
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('viewBox', '0 0 200 200'); // Matches container size for easy scaling
+    container.appendChild(svg);
+    walker.circularPlotSvg = svg;
+
+    // Add a group for all stride points, so we can clear them easily
+    const pointsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    svg.appendChild(pointsGroup);
+    walker.circularPlotPointsGroup = pointsGroup;
+
+    // Draw the center point
+    const centerDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    centerDot.setAttribute('cx', '100');
+    centerDot.setAttribute('cy', '100');
+    centerDot.setAttribute('r', '2');
+    centerDot.setAttribute('fill', '#64748b');
+    svg.appendChild(centerDot);
+
+    debug(`Circular plot created for ${walkerId}`);
+}
+
+// New: Update circular plot with a new stride point
+function updateCircularPlot(walkerId, stepIndex) {
+    const walker = walkerStates[walkerId];
+    const { circularPlotSvg, circularPlotPointsGroup } = walker;
+
+    if (!circularPlotSvg || !circularPlotPointsGroup || !walker.strideData || walker.strideData.length === 0) {
+        console.warn(`Cannot update circular plot for ${walkerId}: missing elements or data.`);
+        return;
+    }
+
+    const stride = walker.strideData[stepIndex];
+    if (!stride) return; // Should not happen if stepIndex is valid
+
+    const totalSteps = walker.strideData.length;
+    const centerX = 100; // Center of SVG viewBox
+    const centerY = 100;
+    const maxRadius = 80; // Max radius for points, leaving some margin
+    const minInterval = walker.minInterval; // Use pre-calculated min interval
+    const maxInterval = walker.maxInterval; // Use pre-calculated max interval
+
+    // Normalize stride interval to fit within maxRadius
+    // Avoid division by zero if all intervals are the same
+    const intervalRange = maxInterval - minInterval;
+    let normalizedRadius;
+    if (intervalRange === 0) {
+        normalizedRadius = maxRadius / 2; // Default to half max radius if all intervals are same
+    } else {
+        normalizedRadius = ((stride.interval - minInterval) / intervalRange) * maxRadius;
+    }
+
+    // Angle calculation: angle θ = (step index / total steps) * 2π
+    const angle = (stepIndex / totalSteps) * 2 * Math.PI;
+
+    // Convert polar to cartesian coordinates
+    const x = centerX + normalizedRadius * Math.cos(angle);
+    const y = centerY + normalizedRadius * Math.sin(angle);
+
+    // Create and append the circle element for the stride point
+    const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    point.setAttribute('cx', x.toFixed(2));
+    point.setAttribute('cy', y.toFixed(2));
+    point.setAttribute('r', '2'); // Small fixed radius for the point itself
+    point.setAttribute('fill', '#2563eb'); // Blue color for stride points
+    circularPlotPointsGroup.appendChild(point);
+
+    debug(`Circular plot updated for ${walkerId} with step ${stepIndex}`);
 }
 
 // Load stride data for a specific walker and subject
@@ -203,12 +396,6 @@ async function loadStrideData(walkerId, subjectId) {
         if (avgIntervalEl) avgIntervalEl.textContent = '-';
         if (stdDevEl) stdDevEl.textContent = '-';
 
-        // Also destroy existing chart if no data loaded
-        if (walker.chart) {
-            walker.chart.destroy();
-            walker.chart = null;
-        }
-
         return false;
     }
 
@@ -216,186 +403,30 @@ async function loadStrideData(walkerId, subjectId) {
     const intervals = walker.strideData.map(d => d.interval);
     const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
     
-    // Calculate standard deviation
+    // Calculate standard deviation, excluding the first 3 steps
+    const intervalsForStdDev = intervals.slice(3);
+    const avgIntervalForStdDev = intervalsForStdDev.reduce((a, b) => a + b, 0) / intervalsForStdDev.length;
+
     const stdDev = Math.sqrt(
-        intervals.reduce((sq, n) => sq + Math.pow(n - avgInterval, 2), 0) / intervals.length
+        intervalsForStdDev.reduce((sq, n) => sq + Math.pow(n - avgIntervalForStdDev, 2), 0) / intervalsForStdDev.length
     );
 
-    // Store std dev in walker state for chart use
+    // Store std dev and average interval in walker state for chart use
     walker.stdDev = stdDev;
-    walker.avgInterval = avgInterval;
+    walker.avgInterval = avgIntervalForStdDev; // Set avgInterval to be consistent with stdDev
+    walker.minInterval = Math.min(...intervals);
+    walker.maxInterval = Math.max(...intervals);
 
     // Update displays
-    if (avgIntervalEl) avgIntervalEl.textContent = avgInterval.toFixed(2) + ' ms';
+    if (avgIntervalEl) avgIntervalEl.textContent = avgIntervalForStdDev.toFixed(2) + ' ms';
     if (stdDevEl) stdDevEl.textContent = stdDev.toFixed(2) + ' ms';
 
-    debug(`Loaded ${walker.strideData.length} stride intervals for ${walkerId} walker (subject ${subject.id}), avg: ${avgInterval.toFixed(2)}ms, std dev: ${stdDev.toFixed(2)}ms`);
+    debug(`Loaded ${walker.strideData.length} stride intervals for ${walkerId} walker (subject ${subject.id}), avg: ${avgIntervalForStdDev.toFixed(2)}ms, std dev: ${stdDev.toFixed(2)}ms`);
 
-    // Initialize or update chart after data load
-    initializeStrideChart(walkerId);
+    // New: Draw the average reference circle for the circular plot
+    drawAverageCircularReference(walkerId);
 
     return true;
-}
-
-// Initialize Chart.js plot for a specific walker
-function initializeStrideChart(walkerId) {
-    debug(`Initializing stride chart for ${walkerId}`);
-    const walker = walkerStates[walkerId];
-    const { chartCanvas } = getWalkerElements(walkerId);
-
-     if (!walker || !chartCanvas || !walker.strideData || walker.strideData.length === 0) {
-         console.warn(`Cannot initialize chart for ${walkerId}: missing elements or data.`);
-         if (walker && walker.chart) {
-             walker.chart.destroy();
-             walker.chart = null;
-         }
-         return;
-     }
-
-    // Destroy previous chart instance if it exists
-    if (walker.chart) {
-        walker.chart.destroy();
-    }
-
-    const ctx = chartCanvas.getContext('2d');
-
-    // Prepare data for Chart.js
-    const chartData = walker.strideData.map((d, index) => ({ x: index + 1, y: d.interval }));
-    const intervals = walker.strideData.map(d => d.interval);
-    const yMin = Math.min(...intervals);
-    const yMax = Math.max(...intervals);
-
-    // Create mean ± std dev band data
-    const mean = walker.avgInterval;
-    const stdDev = walker.stdDev;
-    const bandData = chartData.map(point => ({
-        x: point.x,
-        y: mean + stdDev, // Upper band
-        y0: mean - stdDev // Lower band
-    }));
-
-    // Create new chart instance
-    walker.chart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                // Mean ± std dev band
-                label: 'Mean ± 1 Std Dev',
-                data: bandData,
-                type: 'line',
-                borderColor: 'rgba(37, 99, 235, 0.2)', // Light blue
-                backgroundColor: 'rgba(37, 99, 235, 0.1)', // Very light blue
-                fill: true,
-                pointRadius: 0,
-                borderWidth: 0,
-                stepped: false,
-                tension: 0.1,
-                showLine: true,
-                segment: {
-                    borderColor: ctx => 'rgba(37, 99, 235, 0.2)',
-                    backgroundColor: ctx => 'rgba(37, 99, 235, 0.1)',
-                }
-            }, {
-                // Stride History - shows line up to current step
-                label: 'Stride History',
-                data: [], // Will be populated in updateStridePlot
-                borderColor: '#2563eb',
-                backgroundColor: '#2563eb',
-                pointRadius: 3,
-                pointBackgroundColor: '#2563eb',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 1,
-                showLine: true,
-                borderWidth: 2,
-                tension: 0.2,
-                fill: false
-            }, {
-                // Current Step - single red point
-                label: 'Current Step',
-                data: [], // Will be populated in updateStridePlot
-                borderColor: '#ef4444',
-                backgroundColor: '#ef4444',
-                pointRadius: 6,
-                pointBackgroundColor: '#ef4444',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 2,
-                showLine: false,
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    type: 'linear',
-                    position: 'bottom',
-                    title: {
-                        display: true,
-                        text: 'Stride Index'
-                    },
-                    beginAtZero: true,
-                    suggestedMin: 0,
-                    suggestedMax: walker.strideData.length > 0 ? walker.strideData.length + 1 : 10,
-                    ticks: {
-                        stepSize: 1
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Interval (ms)'
-                    },
-                    beginAtZero: false,
-                    suggestedMin: yMin > 0 ? yMin * 0.9 : 0,
-                    suggestedMax: yMax > 0 ? yMax * 1.1 : 1000,
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            if (context.datasetIndex === 0) {
-                                // For the band, show mean ± std dev
-                                return `Mean ± Std Dev: ${mean.toFixed(2)} ± ${stdDev.toFixed(2)} ms`;
-                            }
-                            // For other points, show stride index and interval
-                            return `Stride ${context.parsed.x}: ${context.parsed.y.toFixed(2)} ms`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // Initialize the datasets with empty data
-    updateStridePlot(walkerId, walker.currentStepIndex);
-    debug(`Chart initialized for ${walkerId}`);
-}
-
-// Implement updateStridePlot to update both stride history and current step
-function updateStridePlot(walkerId, stepIndex) {
-    const walker = walkerStates[walkerId];
-    if (!walker || !walker.chart || !walker.strideData || walker.strideData.length === 0) {
-        return;
-    }
-
-    // Prepare the data arrays
-    const chartData = walker.strideData.map((d, index) => ({ x: index + 1, y: d.interval }));
-    
-    // Update stride history dataset (blue line up to current step)
-    walker.chart.data.datasets[1].data = chartData.slice(0, stepIndex + 1);
-    
-    // Update current step dataset (red point)
-    walker.chart.data.datasets[2].data = chartData.map((point, index) => 
-        index === stepIndex ? point : null
-    );
-
-    // Update the chart
-    walker.chart.update();
 }
 
 // Helper function to set transform for leg parts (DRY)
@@ -433,9 +464,8 @@ function takeStep(walkerId) {
         setLegTransform(rightLegGroup, rightCalf, hipRotationForward, kneeRotationBend); // Right leg forward and bent
     }
 
-    // FIX 6: Add hook for upcoming plot update
-    // This is called here because takeStep is triggered per step
-     updateStridePlot(walkerId, walker.currentStepIndex);
+    // New: Play metronome click for this walker
+    playMetronomeClick(walkerId);
 }
 
 // Start/Stop walking for both walkers
@@ -489,7 +519,6 @@ function startWalking(walkerId) {
 
     // Take first step immediately and update plot
     takeStep(walkerId);
-    updateStridePlot(walkerId, walker.currentStepIndex);
 
     walker.animationFrameId = requestAnimationFrame((ts) => animateWalker(walkerId, ts));
 }
@@ -511,7 +540,7 @@ function animateWalker(walkerId, timestamp) {
         activeStride = walker.strideData[walker.currentStepIndex];
         if (!activeStride) {
             console.error(`Error: No stride data available for ${walkerId} after attempting loop.`);
-            stopWalking(walkerId); // Stop this walker if data is still somehow missing
+            stopWalking(walkerId);
             return;
         }
     }
@@ -528,6 +557,9 @@ function animateWalker(walkerId, timestamp) {
         walker.currentStepIndex = (walker.currentStepIndex + 1) % walker.strideData.length;
         walker.stepCount++;
         if (stepCountEl) stepCountEl.textContent = walker.stepCount;
+
+        // New: Update the circular plot with the current step
+        updateCircularPlot(walkerId, walker.currentStepIndex - 1); // Use previous index as currentStepIndex has already incremented
     }
 
     // Continue animation for this walker
@@ -569,11 +601,9 @@ function stopWalking(walkerId) {
     // Reset current interval display for this walker
      if(currentIntervalEl) currentIntervalEl.textContent = '-';
 
-    // Remove chart highlighting when stopped
-    // FIX 6: Implement chart reset on stop
-    if (walker.chart) {
-        walker.chart.data.datasets[1].data = []; // Clear highlight dataset
-        walker.chart.update();
+    // New: Clear circular plot points when stopped
+    if (walker.circularPlotPointsGroup) {
+        walker.circularPlotPointsGroup.innerHTML = ''; // Clear all child elements (points)
     }
 }
 
@@ -727,6 +757,14 @@ async function init() {
     // Initialize SVGs for both walkers
     initWalkerSVG('older');
     initWalkerSVG('younger');
+
+    // New: Initialize metronomes for both walkers
+    initMetronome('older');
+    initMetronome('younger');
+
+    // New: Create circular plots for both walkers
+    createCircularPlot('older');
+    createCircularPlot('younger');
 
     // Setup dropdowns and load initial data based on default selections
     // setupSubjectDropdowns will also trigger initial data load via change listeners

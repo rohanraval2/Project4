@@ -309,7 +309,7 @@ function populateDropdowns() {
         select.innerHTML = arr.map(d => `<option value="${d.id}">${d.id}: Age ${d.age} (${d.gender})</option>`).join('');
         // Set default selection
         //if (type === 'young') select.value = '9';
-        if (type === 'middle') select.value = '22';
+        if (type === 'middle') select.value = '15';
         if (type === 'old') select.value = '46';
         select.onchange = () => {
             // Stop animation and reset everything

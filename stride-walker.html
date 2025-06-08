@@ -154,13 +154,28 @@
         }
 
         /* Chart Container */
-        .chart-container {
+        /* Circular Plot Container */
+        .circular-plot-container {
             width: 100%;
-            background: white;
-            padding: 1rem;
-            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .circular-plot {
+            width: 200px; /* Fixed size as requested */
+            height: 200px; /* Fixed size as requested */
             border: 1px solid #e2e8f0;
-            box-sizing: border-box;
+            border-radius: 12px;
+            background: white;
+            display: flex; /* To center SVG if needed */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circular-plot svg {
+            width: 100%;
+            height: 100%;
         }
 
         /* Responsive adjustments */
@@ -189,7 +204,7 @@
         }
     </style>
      <!-- Chart.js CDN -->
-     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+     <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script> -->
      <!-- Include Chartjs Plugin Annotations if needed for highlighting, or handle manually -->
      <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script> -->
 
@@ -231,9 +246,10 @@
                     <span id="stepCountOlder" class="stat-value">0</span>
                 </div>
             </div>
-             <!-- Stride Interval Chart for Older Subject -->
-            <div class="chart-container">
-                 <canvas id="strideChartOlder"></canvas>
+            <!-- Stride Interval Chart for Older Subject -->
+            <!-- Circular Plot for Older Subject -->
+            <div class="circular-plot-container">
+                <div id="circularPlotOlder" class="circular-plot"></div>
             </div>
         </div>
 
@@ -267,8 +283,9 @@
                 </div>
             </div>
             <!-- Stride Interval Chart for Younger Subject -->
-            <div class="chart-container">
-                <canvas id="strideChartYounger"></canvas>
+            <!-- Circular Plot for Younger Subject -->
+            <div class="circular-plot-container">
+                <div id="circularPlotYounger" class="circular-plot"></div>
             </div>
         </div>
     </div>
