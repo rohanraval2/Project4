@@ -1,0 +1,134 @@
+/* Retro 70s Theme - Common Styles */
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Color palette */
+  --cream: #fcf6e6;
+  --light-cream: #fff9e9;
+  --yellow: #ffd257;
+  --coral: #ff9d6e;
+  --brown: #7e4a2c;
+}
+
+body {
+  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  background: var(--cream);
+  color: var(--brown);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--coral);
+  font-weight: 700;
+  text-shadow: 1px 1px 0px var(--brown);
+}
+
+a {
+  color: var(--coral);
+  transition: all 0.2s;
+}
+
+a:hover {
+  color: var(--yellow);
+}
+
+button, .button, input[type="button"], input[type="submit"] {
+  background: var(--yellow);
+  color: var(--brown);
+  border: 2px solid var(--brown);
+  border-radius: 30px;
+  padding: 0.5rem 1.5rem;
+  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 3px 3px 0px var(--coral);
+}
+
+button:hover, .button:hover, input[type="button"]:hover, input[type="submit"]:hover {
+  background: var(--coral);
+  color: var(--cream);
+  transform: translateY(-3px);
+  box-shadow: 4px 4px 0px var(--yellow);
+}
+
+select, input[type="text"], input[type="number"] {
+  background: var(--light-cream);
+  border: 2px solid var(--brown);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  color: var(--brown);
+}
+
+select:focus, input:focus {
+  outline: 2px solid var(--coral);
+}
+
+/* Card and container styling */
+.card, .container {
+  background: var(--light-cream);
+  border-radius: 20px;
+  border: 3px solid var(--brown);
+  box-shadow: 6px 6px 0px var(--coral);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Header styling */
+header, .header, nav, .nav {
+  background: var(--coral);
+  color: var(--cream);
+  padding: 1rem;
+  border-bottom: 4px solid var(--yellow);
+}
+
+/* Footer styling */
+footer, .footer {
+  background: var(--coral);
+  color: var(--cream);
+  padding: 1rem;
+  text-align: center;
+  border-top: 4px solid var(--yellow);
+}
+
+/* Table styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+th {
+  background: var(--yellow);
+  color: var(--brown);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+tr:nth-child(even) {
+  background: var(--light-cream);
+}
+
+tr:nth-child(odd) {
+  background: var(--cream);
+}
+
+td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--coral);
+}
+
+/* Labels and form elements */
+label {
+  font-weight: 600;
+  color: var(--brown);
+  margin-right: 0.5rem;
+}
+
+/* Preserve chart styling */
+.chart-container canvas {
+  /* No styling here to preserve chart appearance */
+} 

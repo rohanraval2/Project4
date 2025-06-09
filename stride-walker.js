@@ -128,7 +128,8 @@ function initWalkerSVG(walkerId) {
         </g>
     `;
     // Center the walker horizontally within its SVG/container (CSS handles positioning of the SVG element itself)
-     svg.style.bottom = '0'; // Ensure it's at the bottom
+    svg.style.bottom = '0'; // Ensure it's at the bottom
+    svg.style.overflow = 'hidden'; // Prevent overflow
 
     // Cache the DOM elements for this walker
     state.elements = {
@@ -796,5 +797,11 @@ async function init() {
     debug('Initialization complete for comparison view.');
 }
 
-// Start the application
-init(); 
+// Initialize when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Set overflow hidden on the container to prevent scrollbars
+    document.querySelector('.container').style.overflowX = 'hidden';
+    
+    // Initialize the app
+    init();
+}); 
