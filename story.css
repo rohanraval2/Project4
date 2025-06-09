@@ -402,6 +402,59 @@ body {
     padding: 1rem;
 }
 
+.stat-card .model-info {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+.slider-value {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+/* Speed Predictor Section */
+.speed-predictor .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.speed-predictor .stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.speed-predictor .stat-card:first-child {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: white;
+}
+
+.speed-predictor .stat-card:first-child h3,
+.speed-predictor .stat-card:first-child .stat-value,
+.speed-predictor .stat-card:first-child .model-info {
+    color: white;
+}
+
+.speed-predictor .stat-card:first-child .stat-value {
+    font-size: 2.5rem;
+    margin: 1rem 0;
+}
+
+.speed-predictor .slider-control {
+    margin-top: auto;
+}
+
+.speed-predictor input[type="range"] {
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .kid-profile {
@@ -445,6 +498,10 @@ body {
 
     .kid-svg.young, .kid-svg.middle, .kid-svg.old {
         transform: scale(0.6); /* Further scale down on smaller screens */
+    }
+
+    .speed-predictor .stats-grid {
+        grid-template-columns: 1fr;
     }
 }
 

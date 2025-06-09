@@ -28,6 +28,7 @@
         <div class="nav-dot" data-section="meet-kid" data-tooltip="Meet the Kid"></div>
         <div class="nav-dot" data-section="gait-explorer" data-tooltip="Gait Explorer"></div>
         <div class="nav-dot" data-section="summary" data-tooltip="Summary Stats"></div>
+        <div class="nav-dot" data-section="speed-predictor" data-tooltip="Speed Predictor"></div>
     </nav>
 
     <!-- Main Content -->
@@ -158,6 +159,50 @@
                             <div class="stat-value">120 steps/min</div>
                             <div class="stat-chart">
                                 <canvas id="cadenceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Speed Predictor Section -->
+        <section class="story-section speed-predictor" id="speed-predictor">
+            <div class="content">
+                <h2>Walking Speed Predictor</h2>
+                <div class="stats-container">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Predicted Speed</h3>
+                            <div class="stat-value" id="predictedSpeed">-</div>
+                            <p class="model-info">Model R² ≈ 0.76</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Age (months)</h3>
+                            <div class="slider-control">
+                                <input type="range" id="agePredictor" min="40" max="163" step="1" value="40">
+                                <div class="slider-value" id="ageValue">40 months</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Height (inches)</h3>
+                            <div class="slider-control">
+                                <input type="range" id="heightPredictor" min="39" max="79" step="0.1" value="39">
+                                <div class="slider-value" id="heightValue">39 inches</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Leg Length (inches)</h3>
+                            <div class="slider-control">
+                                <input type="range" id="legLengthPredictor" min="19.5" max="37" step="0.1" value="19.5">
+                                <div class="slider-value" id="legLengthValue">19.5 inches</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Stride Interval (seconds)</h3>
+                            <div class="slider-control">
+                                <input type="range" id="stridePredictor" min="0.8367" max="1.19" step="0.001" value="0.8367">
+                                <div class="slider-value" id="strideValue">0.837 s</div>
                             </div>
                         </div>
                     </div>
