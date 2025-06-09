@@ -5,96 +5,391 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gait Maturation Summary</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="retro-theme.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    html, body {
-      overflow-x: hidden;
-      width: 100%;
-      box-sizing: border-box;
+    body {
       margin: 0;
       padding: 0;
-    }
-    
-    .content-wrapper {
-      padding: 2rem;
-      width: 100%;
+      height: 100%;
+      max-height: 850px;
       box-sizing: border-box;
+      overflow: hidden;
     }
     
     .container {
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
+      padding: 1.5rem;
       box-sizing: border-box;
-      overflow-x: hidden;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      font-size: 2rem;
+      margin: 0.5rem 0 1.5rem;
+      text-align: center;
+      color: var(--coral);
+      text-shadow: 2px 2px 0px var(--brown);
+    }
+    
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .filters div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .filters label {
+      font-weight: 600;
+      color: var(--brown);
+    }
+    
+    .filters select {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      border: 2px solid var(--brown);
+      background-color: var(--cream);
+      color: var(--brown);
+      font-family: 'Rubik', sans-serif;
+    }
+    
+    .visual-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    @media (min-width: 768px) {
+      .visual-container {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      
+      .chart-container {
+        flex: 2;
+      }
+      
+      .animation-container {
+        flex: 1;
+      }
+    }
+    
+    .chart-container {
+      background: var(--light-cream);
+      padding: 1.5rem;
+      border-radius: 20px;
+      box-shadow: 6px 6px 0px var(--coral);
+      border: 3px solid var(--brown);
+      width: 100%;
     }
     
     .animation-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      width: 100%;
+      height: 200px;
+      background: var(--cream);
+      border-radius: 20px;
+      border: 3px solid var(--brown);
+      box-shadow: 4px 4px 0px var(--coral);
       overflow: hidden;
-      max-width: 100%;
+      position: relative;
+      perspective: 500px;
+    }
+    
+    .grid-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 20px;
+      background-image: linear-gradient(var(--light-cream) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--light-cream) 1px, transparent 1px);
+      background-size: 20px 20px;
+      animation: moveGrid 5s linear infinite;
+    }
+    
+    @keyframes moveGrid {
+      0% { background-position: 0 0; }
+      100% { background-position: -20px 0; }
+    }
+    
+    .animation-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 20px; /* Leave space for ground */
+      background-image: linear-gradient(transparent 0%, var(--cream) 90%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    .ground {
+      height: 20px;
+      background: var(--brown);
+      width: 100%;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      position: absolute;
+      z-index: 2;
+      background-image: linear-gradient(90deg, var(--coral) 10px, transparent 10px);
+      background-size: 40px 20px;
+    }
+    
+    .walker {
+      width: 60px;
+      height: 120px;
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: bottom center;
+      animation: walk-across 4s linear infinite;
+      z-index: 3;
+    }
+    
+    .left-arm {
+      animation: leftArmSwing 1s ease-in-out infinite;
+      transform-origin: 40px 40px;
+    }
+    
+    .right-arm {
+      animation: rightArmSwing 1s ease-in-out infinite;
+      transform-origin: 60px 40px;
+    }
+    
+    .left-leg {
+      animation: leftLegWalk 1s ease-in-out infinite;
+      transform-origin: 46px 65px;
+    }
+    
+    .right-leg {
+      animation: rightLegWalk 1s ease-in-out infinite;
+      transform-origin: 54px 65px;
+    }
+    
+    @keyframes leftArmSwing {
+      0%, 100% { transform: rotate(15deg); }
+      50% { transform: rotate(-15deg); }
+    }
+    
+    @keyframes rightArmSwing {
+      0%, 100% { transform: rotate(-15deg); }
+      50% { transform: rotate(15deg); }
+    }
+    
+    @keyframes leftLegWalk {
+      0%, 100% { transform: rotate(-10deg); }
+      50% { transform: rotate(10deg); }
+    }
+    
+    @keyframes rightLegWalk {
+      0%, 100% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+    }
+    
+    @keyframes walk-loop {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    @keyframes walk-across {
+      0% { left: -60px; }
+      100% { left: calc(100% + 10px); }
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--light-cream);
+      padding: 1.5rem;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 6px 6px 0px var(--coral);
+      border: 3px solid var(--brown);
+      transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .stat-card h3 {
+      margin-top: 0;
+      color: var(--brown);
+      font-size: 1.2rem;
+    }
+    
+    .stat-card h2 {
+      color: var(--coral);
+      font-size: 2rem;
+      margin: 0.5rem 0;
+    }
+    
+    .slider-control {
+      margin-top: 1rem;
+    }
+    
+    .slider-control label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--brown);
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      margin: 0.5rem 0;
+      -webkit-appearance: none;
+      height: 10px;
+      border-radius: 5px;
+      background: var(--cream);
+      outline: none;
+      border: 1px solid var(--brown);
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--yellow);
+      cursor: pointer;
+      border: 2px solid var(--brown);
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--yellow);
+      cursor: pointer;
+      border: 2px solid var(--brown);
     }
   </style>
 </head>
 <body>
-  <div class="content-wrapper">
-    <div class="container">
-      <h1>Gait Maturation: Summary Stats</h1>
+  <div class="container">
+    <h1>Gait Maturation: Summary Stats</h1>
 
-      <div class="filters">
-        <div>
-          <label for="gender">Gender:</label>
-          <select id="gender">
-            <option value="All">All</option>
-            <option value="M">Male</option>
-            <option value="F">Female</option>
-          </select>
-        </div>
-        <div>
-          <label for="group">Group:</label>
-          <select id="group">
-            <option value="All">All</option>
-            <option value="Young">Young</option>
-            <option value="Middle">Middle</option>
-            <option value="Old">Old</option>
-          </select>
+    <div class="filters">
+      <div>
+        <label for="gender">Gender:</label>
+        <select id="gender">
+          <option value="All">All</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+        </select>
+      </div>
+      <div>
+        <label for="group">Group:</label>
+        <select id="group">
+          <option value="All">All</option>
+          <option value="Young">Young</option>
+          <option value="Middle">Middle</option>
+          <option value="Old">Old</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="visual-container">
+      <div class="chart-container">
+        <canvas id="speedChart"></canvas>
+      </div>
+      <div class="animation-container">
+        <div class="grid-background"></div>
+        <div class="ground"></div>
+        <svg class="walker" id="walker" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+          <!-- Hair -->
+          <path d="M 35 12 Q 50 5 65 12 Q 60 8 50 8 Q 40 8 35 12" fill="#8b4513"/>
+          
+          <!-- Head -->
+          <circle cx="50" cy="20" r="15" fill="#ffeb3b" stroke="#333" stroke-width="2"/>
+          
+          <!-- Eyes -->
+          <circle cx="45" cy="17" r="2" fill="#333"/>
+          <circle cx="55" cy="17" r="2" fill="#333"/>
+          <circle cx="45" cy="16.5" r="0.8" fill="#fff"/>
+          <circle cx="55" cy="16.5" r="0.8" fill="#fff"/>
+          
+          <!-- Nose -->
+          <ellipse cx="50" cy="20" rx="1" ry="2" fill="#ffcc02"/>
+          
+          <!-- Smile -->
+          <path d="M 42 24 Q 50 29 58 24" stroke="#333" stroke-width="2" fill="none"/>
+          
+          <!-- Body -->
+          <rect x="40" y="35" width="20" height="30" fill="#2196f3" rx="8"/>
+          
+          <!-- Arms with animation -->
+          <g class="left-arm">
+            <circle cx="35" cy="45" r="4" fill="#ffeb3b"/>
+            <rect x="25" y="42" width="18" height="6" fill="#2196f3" rx="3"/>
+          </g>
+          <g class="right-arm">
+            <circle cx="65" cy="45" r="4" fill="#ffeb3b"/>
+            <rect x="57" y="42" width="18" height="6" fill="#2196f3" rx="3"/>
+          </g>
+          
+          <!-- Legs with animation -->
+          <g class="left-leg">
+            <rect x="43" y="65" width="6" height="25" fill="#333" rx="3"/>
+            <ellipse cx="46" cy="95" rx="10" ry="5" fill="#ff5722"/>
+          </g>
+          <g class="right-leg">
+            <rect x="51" y="65" width="6" height="25" fill="#333" rx="3"/>
+            <ellipse cx="54" cy="95" rx="10" ry="5" fill="#ff5722"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <h3>Selected Age</h3>
+        <h2 id="ageStat">-</h2>
+        <div class="slider-control">
+          <label for="ageSlider">Select Age:</label>
+          <input type="range" id="ageSlider" min="40" max="163" step="1" value="40">
         </div>
       </div>
-
-      <div class="visual-container">
-        <div class="chart-container">
-          <canvas id="speedChart"></canvas>
-        </div>
-        <div class="animation-container">
-          <div class="ground">
-            <div class="walker" id="walker"></div>
-          </div>
+      <div class="stat-card">
+        <h3>Speed (m/s)</h3>
+        <h2 id="speedStat">-</h2>
+        <div class="slider-control">
+          <label for="speedSlider">Select Min Speed (m/s):</label>
+          <input type="range" id="speedSlider" min="0.8" max="1.5" step="0.01" value="0.8">
         </div>
       </div>
-
-      <div class="stats">
-        <div class="stat-card">
-          <h3>Selected Age</h3>
-          <h2 id="ageStat">-</h2>
-          <div class="slider-control">
-            <label for="ageSlider">Select Age:</label>
-            <input type="range" id="ageSlider" min="40" max="163" step="1" value="40">
-          </div>
-        </div>
-        <div class="stat-card">
-          <h3>Speed (m/s)</h3>
-          <h2 id="speedStat">-</h2>
-          <div class="slider-control">
-            <label for="speedSlider">Select Min Speed (m/s):</label>
-            <input type="range" id="speedSlider" min="0.8" max="1.5" step="0.01" value="0.8">
-          </div>
-        </div>
-        <div class="stat-card">
-          <h3>Leg Length (in)</h3>
-          <h2 id="legLengthStat">-</h2>
-          <div class="slider-control">
-            <label for="legSlider">Select Min Leg Length (in):</label>
-            <input type="range" id="legSlider" min="15" max="40" step="0.1" value="15">
-          </div>
+      <div class="stat-card">
+        <h3>Leg Length (in)</h3>
+        <h2 id="legLengthStat">-</h2>
+        <div class="slider-control">
+          <label for="legSlider">Select Min Leg Length (in):</label>
+          <input type="range" id="legSlider" min="15" max="40" step="0.1" value="15">
         </div>
       </div>
     </div>

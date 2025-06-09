@@ -4,27 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gait Explorer – A Day in the Life</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="retro-theme.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     .explorer-container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 32px 0;
+      padding: 32px 16px;
     }
+    
+    h1 {
+      color: var(--coral);
+      text-align: center;
+      font-size: 2.2rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 2px 2px 0px var(--brown);
+    }
+    
     .character-picker {
       margin-bottom: 24px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
+    
+    .character-picker label {
+      font-weight: 600;
+      color: var(--brown);
+      font-size: 1.1rem;
+    }
+    
+    .character-picker select {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 2px solid var(--brown);
+      background-color: var(--cream);
+      color: var(--brown);
+      font-family: 'Rubik', sans-serif;
+      font-size: 1rem;
+    }
+    
     .animation-area {
-      background: #e0e0e0;
-      border-radius: 10px;
-      min-height: 160px;
+      background: var(--cream);
+      border-radius: 20px;
+      min-height: 180px;
       position: relative;
       margin-bottom: 24px;
       overflow: hidden;
+      border: 3px solid var(--brown);
+      box-shadow: 6px 6px 0px var(--coral);
+      background-image: repeating-linear-gradient(
+        to right,
+        var(--light-cream) 0px,
+        var(--light-cream) 60px,
+        var(--cream) 60px,
+        var(--cream) 120px
+      );
     }
+    
     .kid-svg {
       position: absolute;
       bottom: 0;
@@ -33,34 +74,70 @@
       height: 120px;
       transition: left 0.1s linear;
     }
+    
     .narration {
-      font-size: 1.2em;
-      background: #fffbe6;
-      border-radius: 8px;
-      padding: 16px;
-      margin-top: 12px;
-      min-height: 48px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      font-size: 1.2rem;
+      background: var(--light-cream);
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
+      min-height: 60px;
+      box-shadow: 4px 4px 0px var(--coral);
+      border: 3px solid var(--brown);
+      color: var(--brown);
+      line-height: 1.6;
     }
+    
     .explorer-controls {
-      margin-top: 16px;
+      margin-top: 24px;
       display: flex;
-      gap: 12px;
+      gap: 16px;
       align-items: center;
+      justify-content: center;
     }
+    
     .explorer-controls button {
-      font-size: 1em;
-      padding: 8px 18px;
-      border-radius: 4px;
-      border: none;
-      background: #007bff;
-      color: #fff;
+      font-size: 1.1rem;
+      padding: 10px 24px;
+      border-radius: 30px;
+      border: 3px solid var(--brown);
+      background: var(--yellow);
+      color: var(--brown);
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.3s;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 600;
+      box-shadow: 4px 4px 0px var(--coral);
     }
+    
+    .explorer-controls button:hover {
+      background: var(--coral);
+      color: var(--cream);
+      transform: translateY(-3px);
+      box-shadow: 5px 5px 0px var(--yellow);
+    }
+    
     .explorer-controls button:disabled {
-      background: #aaa;
+      background: #ccc;
       cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+      color: #666;
+    }
+    
+    /* Add starburst decoration */
+    .explorer-container::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 80px;
+      height: 80px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z' fill='%23ffd257' /%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      opacity: 0.3;
+      z-index: -1;
     }
   </style>
 </head>
@@ -68,7 +145,7 @@
   <div class="explorer-container">
     <h1>Gait Explorer: A Day in the Life</h1>
     <div class="character-picker">
-      <label for="subjectSelect"><strong>Choose a child:</strong></label>
+      <label for="subjectSelect">Choose a child:</label>
       <select id="subjectSelect"></select>
     </div>
     <div class="animation-area">

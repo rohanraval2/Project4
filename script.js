@@ -130,7 +130,34 @@ function updateStatsFromAge(ageValue) {
 
   const walker = document.getElementById("walker");
   if (walker) {
-    walker.style.animationDuration = (10 / (avgSpeed * 10)).toFixed(2) + "s";
+    // Adjust animation speed based on the walker's speed
+    // Faster speed = shorter animation duration
+    const limbAnimationDuration = (1 / avgSpeed) * 0.3; // Faster limb movement
+    const walkDuration = (5 / avgSpeed).toFixed(2); // Faster horizontal movement
+    
+    // Apply animation duration to all animated parts
+    const leftArm = walker.querySelector(".left-arm");
+    const rightArm = walker.querySelector(".right-arm");
+    const leftLeg = walker.querySelector(".left-leg");
+    const rightLeg = walker.querySelector(".right-leg");
+    
+    if (leftArm) leftArm.style.animationDuration = limbAnimationDuration.toFixed(2) + "s";
+    if (rightArm) rightArm.style.animationDuration = limbAnimationDuration.toFixed(2) + "s";
+    if (leftLeg) leftLeg.style.animationDuration = limbAnimationDuration.toFixed(2) + "s";
+    if (rightLeg) rightLeg.style.animationDuration = limbAnimationDuration.toFixed(2) + "s";
+    
+    // Apply horizontal movement animation
+    walker.style.animationDuration = walkDuration + "s";
+    
+    // Also apply the bounce animation by combining animations
+    walker.style.animation = `walk-across ${walkDuration}s linear infinite, walk-loop ${limbAnimationDuration.toFixed(2)}s infinite`;
+    
+    // Adjust grid animation speed based on walker's speed
+    const gridBackground = document.querySelector(".grid-background");
+    if (gridBackground) {
+      const gridAnimationDuration = (5 / avgSpeed).toFixed(2);
+      gridBackground.style.animationDuration = gridAnimationDuration + "s";
+    }
   }
 }
 
@@ -173,7 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetId = this.getAttribute('href');
             const target = document.querySelector(targetId);
             if (target) {
-                const navHeight = document.querySelector('.nav').offsetHeight;
+                const navElement = document.querySelector('.nav');
+                const navHeight = navElement ? navElement.offsetHeight : 0;
                 const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight;
                 window.scrollTo({
                     top: targetPosition,
@@ -187,7 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', () => {
         const sections = document.querySelectorAll('section');
         const navLinks = document.querySelectorAll('.nav-link');
-        const navHeight = document.querySelector('.nav').offsetHeight;
+        const navElement = document.querySelector('.nav');
+        const navHeight = navElement ? navElement.offsetHeight : 0;
         
         let current = '';
         sections.forEach(section => {
