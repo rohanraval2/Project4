@@ -4,17 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stride Walker Visualization Comparison</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        body {
+        html, body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: #ffffff;
             color: #1e293b;
             margin: 0;
-            padding: 2rem;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body {
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Updated container for side-by-side layout */
@@ -26,6 +43,8 @@
             flex-direction: row;
             gap: 4rem;
             justify-content: center;
+            overflow-x: hidden;
+            box-sizing: border-box;
         }
 
         .walker-section {
@@ -34,6 +53,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -70,6 +90,7 @@
             display: flex; /* Use flexbox for centering */
             align-items: center; /* Center vertically */
             justify-content: center; /* Center horizontally */
+            box-sizing: border-box;
         }
 
         .kid-svg {
@@ -183,6 +204,8 @@
             .container {
                 flex-direction: column;
                 gap: 2rem;
+                width: 100%;
+                padding: 0;
             }
             .walker-section {
                 width: 100%;
@@ -190,6 +213,7 @@
             }
             .ground {
                 width: 100%; /* Full width on mobile */
+                max-width: 400px; /* Limit maximum width */
                 height: 0; /* Create square using padding-bottom */
                 padding-bottom: 100%; /* Makes it square */
                 position: relative;
@@ -210,82 +234,84 @@
 
 </head>
 <body>
-    <h1>Stride Walker Visualization Comparison</h1>
+    <div class="content-wrapper">
+        <h1>Stride Walker Visualization Comparison</h1>
 
-    <div class="main-controls">
-         <button id="startButton">Start Walking</button>
-    </div>
-
-    <div class="container">
-        <!-- Older Subject Walker Section -->
-        <div class="walker-section">
-            <h2>Older Subject</h2>
-            <div class="walker-container">
-                <div class="ground">
-                    <svg class="kid-svg older" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet"></svg>
-                </div>
-            </div>
-            <div class="controls">
-                <select id="subjectSelectOlder"></select>
-            </div>
-            <div class="stats">
-                <div class="stat">
-                    <span class="stat-label">Current Stride Interval:</span>
-                    <span id="currentIntervalOlder" class="stat-value">-</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Average Stride Interval:</span>
-                    <span id="avgIntervalOlder" class="stat-value">-</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Standard Deviation:</span>
-                    <span id="stdDevOlder" class="stat-value">-</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Steps Taken:</span>
-                    <span id="stepCountOlder" class="stat-value">0</span>
-                </div>
-            </div>
-            <!-- Stride Interval Chart for Older Subject -->
-            <!-- Circular Plot for Older Subject -->
-            <div class="circular-plot-container">
-                <div id="circularPlotOlder" class="circular-plot"></div>
-            </div>
+        <div class="main-controls">
+            <button id="startButton">Start Walking</button>
         </div>
 
-        <!-- Younger Subject Walker Section -->
-        <div class="walker-section">
-            <h2>Younger Subject</h2>
-             <div class="walker-container">
-                <div class="ground">
-                    <svg class="kid-svg younger" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="container">
+            <!-- Older Subject Walker Section -->
+            <div class="walker-section">
+                <h2>Older Subject</h2>
+                <div class="walker-container">
+                    <div class="ground">
+                        <svg class="kid-svg older" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet"></svg>
+                    </div>
+                </div>
+                <div class="controls">
+                    <select id="subjectSelectOlder"></select>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Current Stride Interval:</span>
+                        <span id="currentIntervalOlder" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Average Stride Interval:</span>
+                        <span id="avgIntervalOlder" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Standard Deviation:</span>
+                        <span id="stdDevOlder" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Steps Taken:</span>
+                        <span id="stepCountOlder" class="stat-value">0</span>
+                    </div>
+                </div>
+                <!-- Stride Interval Chart for Older Subject -->
+                <!-- Circular Plot for Older Subject -->
+                <div class="circular-plot-container">
+                    <div id="circularPlotOlder" class="circular-plot"></div>
                 </div>
             </div>
-             <div class="controls">
-                <select id="subjectSelectYounger"></select>
-            </div>
-            <div class="stats">
-                <div class="stat">
-                    <span class="stat-label">Current Stride Interval:</span>
-                    <span id="currentIntervalYounger" class="stat-value">-</span>
+
+            <!-- Younger Subject Walker Section -->
+            <div class="walker-section">
+                <h2>Younger Subject</h2>
+                <div class="walker-container">
+                    <div class="ground">
+                        <svg class="kid-svg younger" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet"></svg>
+                    </div>
                 </div>
-                <div class="stat">
-                    <span class="stat-label">Average Stride Interval:</span>
-                    <span id="avgIntervalYounger" class="stat-value">-</span>
+                <div class="controls">
+                    <select id="subjectSelectYounger"></select>
                 </div>
-                <div class="stat">
-                    <span class="stat-label">Standard Deviation:</span>
-                    <span id="stdDevYounger" class="stat-value">-</span>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Current Stride Interval:</span>
+                        <span id="currentIntervalYounger" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Average Stride Interval:</span>
+                        <span id="avgIntervalYounger" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Standard Deviation:</span>
+                        <span id="stdDevYounger" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Steps Taken:</span>
+                        <span id="stepCountYounger" class="stat-value">0</span>
+                    </div>
                 </div>
-                <div class="stat">
-                    <span class="stat-label">Steps Taken:</span>
-                    <span id="stepCountYounger" class="stat-value">0</span>
+                <!-- Stride Interval Chart for Younger Subject -->
+                <!-- Circular Plot for Younger Subject -->
+                <div class="circular-plot-container">
+                    <div id="circularPlotYounger" class="circular-plot"></div>
                 </div>
-            </div>
-            <!-- Stride Interval Chart for Younger Subject -->
-            <!-- Circular Plot for Younger Subject -->
-            <div class="circular-plot-container">
-                <div id="circularPlotYounger" class="circular-plot"></div>
             </div>
         </div>
     </div>
